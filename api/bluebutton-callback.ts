@@ -4,6 +4,7 @@
 // extracts Part D drug history, and returns structured drug list to the client.
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { logger } from "../server/_core/logger.js";
 
 const BB2_BASE = "https://api.bluebutton.cms.gov";
 const BB2_SANDBOX_BASE = "https://sandbox.bluebutton.cms.gov";
@@ -209,8 +210,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           patientName = `${(nameObj.given || []).join(" ")} ${nameObj.family || ""}`.trim();
         }
       }
-    } catch (_) {
-      // Non-fatal – continue without name
+    } catch (err) {
+      logger.error({ err, patient }, "Failed to fetch patient demographics (non-fatal)");
     }
 
     // ── Step 6: Return structured data ──────────────────────────────────────

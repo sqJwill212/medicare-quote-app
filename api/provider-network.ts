@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { logger } from "../server/_core/logger.js";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface DoctorNetworkResult {
@@ -38,7 +39,8 @@ async function lookupNPI(npi: string): Promise<NPPESResult | null> {
     });
     if (!res.ok) return null;
     return (await res.json()) as NPPESResult;
-  } catch {
+  } catch (err) {
+    logger.error({ err, npi }, "NPI lookup failed");
     return null;
   }
 }

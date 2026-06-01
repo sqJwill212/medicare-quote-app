@@ -11,6 +11,7 @@
  */
 import { Router } from "express";
 import { z } from "zod";
+import { logger } from "./_core/logger.js";
 
 const router = Router();
 
@@ -96,7 +97,8 @@ async function lookupNPI(npi: string): Promise<NPPESResult | null> {
     const data = (await res.json()) as NPPESResult;
     nppiCache.set(npi, data);
     return data;
-  } catch {
+  } catch (err) {
+    logger.error({ err, npi }, "NPI lookup failed");
     return null;
   }
 }

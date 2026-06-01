@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { logger } from "../server/_core/logger.js";
 // v4: fast geocoding - only geocode user ZIP once, use lat/lng bounds on NPPES data
 
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -25,7 +26,8 @@ async function getZipCoords(zip: string): Promise<{ lat: number; lng: number; st
       lng: parseFloat(place.longitude),
       state: place["state abbreviation"],
     };
-  } catch {
+  } catch (err) {
+    logger.error({ err, zip }, "Failed to geocode ZIP");
     return null;
   }
 }
@@ -42,7 +44,9 @@ async function batchGeocode(zips: string[]): Promise<Record<string, { lat: numbe
         try {
           const coords = await getZipCoords(z);
           if (coords) map[z] = { lat: coords.lat, lng: coords.lng };
-        } catch {}
+        } catch (err) {
+          logger.error({ err, zip: z }, "Failed to batch geocode ZIP");
+        }
       })
     );
   }
@@ -73,7 +77,8 @@ async function searchNPPES(name: string, state: string, limit = 200): Promise<an
     const res = await fetch(`https://npiregistry.cms.hhs.gov/api/?${params}`, { signal: AbortSignal.timeout(8000) });
     const data = await res.json();
     return data.results || [];
-  } catch {
+  } catch (err) {
+    logger.error({ err, name, state }, "NPPES search failed");
     return [];
   }
 }

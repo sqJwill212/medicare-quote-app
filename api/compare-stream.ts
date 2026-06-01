@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { logger } from '../server/_core/logger.js';
 
 /**
  * Vercel Serverless Function for /api/compare-stream
@@ -163,8 +164,8 @@ async function streamFromAnthropic(apiKey: string, prompt: string, maxTokens: nu
         if (event.type === 'message_stop') {
           if (!doneSent) { sendSSE(res, 'done', ''); doneSent = true; }
         }
-      } catch {
-        // skip malformed JSON
+      } catch (err) {
+        logger.debug({ err, dataStr }, "Skipping malformed SSE chunk (Anthropic compare)");
       }
     }
   }
@@ -231,7 +232,9 @@ async function streamFromForge(apiUrl: string, apiKey: string, prompt: string, m
         if (event.choices?.[0]?.finish_reason === 'stop') {
           if (!doneSent) { sendSSE(res, 'done', ''); doneSent = true; }
         }
-      } catch { /* skip */ }
+      } catch (err) {
+        logger.debug({ err, dataStr }, "Skipping malformed SSE chunk (Forge compare)");
+      }
     }
   }
 

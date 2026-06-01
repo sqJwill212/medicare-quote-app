@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { logger } from '../server/_core/logger.js';
 import { enrichPlansWithDrugCosts as enrichWithFormulary } from './formularyCalculator.js';
 interface DrugInput { name: string; dosage?: string; }
 
@@ -97,7 +98,8 @@ async function resolveZipToCounty(zip: string) {
     const result = { stateAbbr: primary.state.toUpperCase(), countyName: primary.name.toUpperCase() };
     zipCache.set(zip, result);
     return result;
-  } catch {
+  } catch (err) {
+    logger.error({ err, zip }, "Failed to resolve ZIP to county");
     return null;
   }
 }
@@ -115,7 +117,8 @@ async function getStateData(stateAbbr: string) {
     const data = await res.json() as Record<string, any[]>;
     stateCache.set(stateAbbr, data);
     return data;
-  } catch {
+  } catch (err) {
+    logger.error({ err, stateAbbr }, "Failed to fetch state plan data");
     return null;
   }
 }

@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { logger } from '../server/_core/logger.js';
 
 const SYSTEM_PROMPT = `You are Medicare Guide, an AI-powered Medicare counseling assistant built by SelectQuote. You are NOT a licensed insurance agent. You are an educational, analytical, and plan-comparison assistant.
 
@@ -200,7 +201,9 @@ async function streamFromAnthropic(apiKey: string, messages: any[], res: VercelR
         if (event.type === 'message_stop') {
           if (!doneSent) { sendSSE(res, 'done', ''); doneSent = true; }
         }
-      } catch { /* skip */ }
+      } catch (err) {
+        logger.debug({ err, dataStr }, "Skipping malformed SSE chunk (Anthropic)");
+      }
     }
   }
 
@@ -269,7 +272,9 @@ async function streamFromOpenAI(apiKey: string, messages: any[], res: VercelResp
         if (event.choices?.[0]?.finish_reason === 'stop') {
           if (!doneSent) { sendSSE(res, 'done', ''); doneSent = true; }
         }
-      } catch { /* skip */ }
+      } catch (err) {
+        logger.debug({ err, dataStr }, "Skipping malformed SSE chunk (OpenAI)");
+      }
     }
   }
 

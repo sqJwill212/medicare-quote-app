@@ -5,6 +5,7 @@
  *   })
  */
 import { ENV } from "./env";
+import { logger } from "./logger.js";
 
 export type DataApiCallOptions = {
   query?: Record<string, unknown>;
@@ -56,7 +57,8 @@ export async function callDataApi(
   if (payload && typeof payload === "object" && "jsonData" in payload) {
     try {
       return JSON.parse((payload as Record<string, string>).jsonData ?? "{}");
-    } catch {
+    } catch (err) {
+      logger.error({ err, apiId }, "Failed to parse jsonData from Data API response");
       return (payload as Record<string, unknown>).jsonData;
     }
   }

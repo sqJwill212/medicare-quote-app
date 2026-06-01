@@ -11,7 +11,12 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerCompareStreamRoute } from "../compareStream";
 import recommendStreamRouter from "../recommendStream";
+import providerNetworkRouter from "../providerNetwork";
 import { registerPlansRoute, prewarmPlanCache } from "../plansRouter";
+import { registerDoctorsRoute } from "../doctorsRouter";
+import { registerChatRoute } from "../chatRouter";
+import { registerBlueButtonRoute } from "../blueButtonRouter";
+import { registerVoiceWebhookRoute } from "../voiceWebhookRouter";
 import { seedCmsDataSources, startCmsPipelineCron } from "../cmsPipeline";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -91,6 +96,16 @@ async function startServer() {
   registerOAuthRoutes(app);
   // Real CMS plans endpoint
   registerPlansRoute(app);
+  // Doctor search endpoint
+  registerDoctorsRoute(app);
+  // Provider network check endpoint
+  app.use("/api", providerNetworkRouter);
+  // Chat AI endpoint
+  registerChatRoute(app);
+  // Blue Button OAuth callback
+  registerBlueButtonRoute(app);
+  // Voice webhook endpoint
+  registerVoiceWebhookRoute(app);
   // Streaming AI compare endpoint (SSE) — registered before tRPC
   registerCompareStreamRoute(app);
   // Streaming Plan Recommender AI narrative endpoint

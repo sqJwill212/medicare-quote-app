@@ -25,6 +25,7 @@ import { carrierOverrides, cmsDataSources, cmsSyncLog, planOverrides } from "../
 import { getDb } from "./db";
 import { runCmsSync, getNextScheduledRun } from "./cmsPipeline";
 import { publicProcedure, router } from "./_core/trpc";
+import { logger } from "./_core/logger.js";
 
 // ─── Shared: load state plan data from CDN (same cache as plansRouter) ────────
 const CDN_BASE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663319810046/5TY7JcF275WMujMHZWWJT8";
@@ -75,7 +76,8 @@ async function loadStateDataForAdmin(stateAbbr: string): Promise<Record<string, 
     }
     adminStateCache.set(stateAbbr, data);
     return data;
-  } catch {
+  } catch (err) {
+    logger.error({ err, stateAbbr }, "Failed to load state data for admin");
     return null;
   }
 }
