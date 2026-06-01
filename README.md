@@ -83,13 +83,34 @@ This project pulls npm packages from a private AWS CodeArtifact registry. You mu
    | `ADMIN_PASSWORD` | Admin panel password (defaults to `admin123` in dev) |
    | `PORT` | Server port (defaults to `3000`) |
 
-5. **Set up the database**
+5. **Set up MySQL**
+
+   Run a local MySQL instance via Docker:
+
+   ```bash
+   docker run -d \
+     --name mysql \
+     -e MYSQL_ROOT_PASSWORD={password} \
+     -p 3306:3306 \
+     -v mysql_data:/var/lib/mysql \
+     mysql:8
+   ```
+
+   Then create the database:
+
+   ```bash
+   mysql -h 127.0.0.1 -u root -p{password} -e "CREATE DATABASE IF NOT EXISTS cqe;"
+   ```
+
+6. **Run database migrations**
 
    ```bash
    npm run db:push
    ```
 
-6. **Start the dev server**
+   This generates migration files from the Drizzle schema and applies them to create all tables.
+
+7. **Start the dev server**
 
    ```bash
    npm run dev
