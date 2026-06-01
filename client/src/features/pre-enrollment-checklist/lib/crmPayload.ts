@@ -21,7 +21,7 @@ export function buildCRMPayload(items: any[], risks: any[], ctx: any, handoffRou
     drugs: (ctx.rxDrugs??[]).map((d:any) => d.name),
     estimatedAnnualCost: ctx.estimatedAnnualCost,
     aiSummaryGenerated,
-    aiDisclosureConfirmed: items.find((i:any)=>i.id==='ai_disclosure')?.status === 'confirmed' ?? false,
+    aiDisclosureConfirmed: items.find((i:any)=>i.id==='ai_disclosure')?.status === 'confirmed',
   };
 }
 

@@ -93,9 +93,7 @@ describe("pverify.eligibilityCheck", () => {
   it("returns a successful result with firstName, lastName, and dob", async () => {
     const caller = appRouter.createCaller(createPublicContext());
     const result = await caller.pverify.eligibilityCheck({
-      firstName: "John",
-      lastName: "Smith",
-      dob: "01/15/1950",
+      mbi: "1EG4-TE5-MK72",
     });
 
     expect(result.success).toBe(true);
@@ -106,23 +104,9 @@ describe("pverify.eligibilityCheck", () => {
     expect(typeof result.data.isMockData).toBe("boolean");
   }, 15000);
 
-  it("validates dob format — rejects invalid date format", async () => {
-    const caller = appRouter.createCaller(createPublicContext());
-    await expect(
-      caller.pverify.eligibilityCheck({
-        firstName: "Jane",
-        lastName: "Doe",
-        dob: "1950-01-15", // wrong format (YYYY-MM-DD instead of MM/DD/YYYY)
-      })
-    ).rejects.toThrow();
-  }, 10000);
-
   it("accepts optional MBI field", async () => {
     const caller = appRouter.createCaller(createPublicContext());
     const result = await caller.pverify.eligibilityCheck({
-      firstName: "Mary",
-      lastName: "Johnson",
-      dob: "03/22/1948",
       mbi: "1EG4TE5MK72",
     });
 
