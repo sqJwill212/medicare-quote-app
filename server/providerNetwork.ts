@@ -53,7 +53,7 @@ const PlanSchema = z.object({
 
 const RequestSchema = z.object({
   doctors: z.array(DoctorSchema).min(1).max(10),
-  plans: z.array(PlanSchema).min(1).max(50),
+  plans: z.array(PlanSchema).min(1).max(100),
   zip: z.string().regex(/^\d{5}$/),
 });
 
