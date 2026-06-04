@@ -81,18 +81,31 @@ function checkDoctorNetwork(
   return { inNetwork, confidence };
 }
 
-// ── Handler ───────────────────────────────────────────────────────────────────
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+// ── Validation ────────────────────────────────────────────────────────────────
+function validateRequest(
+  req: VercelRequest,
+  res: VercelResponse,
+): { doctors: Array<{ npi: string; name: string; specialty?: string }>; plans: any[]; zip: string } | null {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
-    return;
+    return null;
   }
 
   const { doctors, plans, zip } = req.body;
   if (!doctors || !plans || !zip) {
     res.status(400).json({ error: "Missing required fields: doctors, plans, zip" });
-    return;
+    return null;
   }
+
+  return { doctors, plans, zip };
+}
+
+// ── Handler ───────────────────────────────────────────────────────────────────
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const validated = validateRequest(req, res);
+  if (!validated) return;
+
+  const { doctors, plans, zip } = validated;
 
   const planState = zip.slice(0, 2);
 
